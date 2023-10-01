@@ -1,12 +1,14 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request
 from flask_restful import Resource, Api
-from multiprocessing import Manager
+import sqlite3
+
 
 app = Flask(__name__)
 api = Api(app)
 
-manager = Manager()
-data_storage = manager.dict()
+data_storage = None
+
+DB_NAME = 'online_users.db'
 
 
 class UsersOnlineResource(Resource):
@@ -17,7 +19,13 @@ class UsersOnlineResource(Resource):
         if not req_date:
             return {"error": "date parameter is required."}, 400
 
-        users_online = data_storage.get(req_date, None)
+        conn = sqlite3.connect(DB_NAME)
+        cursor = conn.cursor()
+        cursor.execute("SELECT online_count FROM user_stats WHERE date=?", (req_date,))
+        result = cursor.fetchone()
+        conn.close()
+
+        users_online = result[0] if result else None
         return {"usersOnline": users_online}, 200
 
 
