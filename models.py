@@ -17,6 +17,16 @@ def get_20_users(offset):
     # Extracting the list of users from JSON data
     user_list = json_data['data']
 
-    # Loop through each user in the list
     return user_list
+
+
+def get_all_users():
+    params = {'offset': 0}
+    all_user_data = []
+    while params['offset'] < 217:
+        for user in get_20_users(params):
+            all_user_data.append(user)
+        params['offset'] += 20
+
+    return all_user_data
 

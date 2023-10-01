@@ -15,18 +15,24 @@ class UsersOnlineResource(Resource):
     @staticmethod
     def get():
         req_date = request.args.get('date')
+        user_id = request.args.get('userId')
 
         if not req_date:
             return {"error": "date parameter is required."}, 400
 
-        conn = sqlite3.connect(DB_NAME)
-        cursor = conn.cursor()
-        cursor.execute("SELECT online_count FROM user_stats WHERE date=?", (req_date,))
-        result = cursor.fetchone()
-        conn.close()
+        if req_date and not user_id:
+            conn = sqlite3.connect(DB_NAME)
+            cursor = conn.cursor()
+            cursor.execute("SELECT online_count FROM user_stats WHERE date=?", (req_date,))
+            result = cursor.fetchone()
+            conn.close()
 
-        users_online = result[0] if result else None
-        return {"usersOnline": users_online}, 200
+            users_online = result[0] if result else None
+            return {"usersOnline": users_online}, 200
+        if req_date and user_id:
+            conn = sqlite3.connect(DB_NAME)
+            cursor = conn.cursor()
+            cursor.execute("")
 
 
 api.add_resource(UsersOnlineResource, "/api/stats/users")
