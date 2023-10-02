@@ -13,8 +13,11 @@ def setup_db():
     cursor.execute('''CREATE TABLE IF NOT EXISTS user_stats 
                       (date text primary key, online_count integer)''')
 
-    cursor.execute('''CREATE TABLE IF NOT EXISTS individual_user_stats 
-                          (userId text primary key, isOnline boolean, lastSeenDate text)''')
+    cursor.execute('''CREATE TABLE IF NOT EXISTS individual_user_stats
+                          (userId text primary key, 
+                           isOnline bool, 
+                           currentOnlineTime text, 
+                           lastSeenDate text)''')
     conn.commit()
     conn.close()
 
@@ -32,8 +35,15 @@ def worker():
             if user["isOnline"]:
                 online_count += 1
 
-            cursor.execute("INSERT OR REPLACE INTO individual_user_stats VALUES (?, ?, ?)",
-                           (user["userId"], user["isOnline"], user["lastSeenDate"]))
+            user_id = user["userId"]
+            is_online = user["isOnline"]
+            current_time = time.strftime('%Y-%m-%dT%H:%M:%S')
+            last_seen = user["lastSeenDate"]
+
+            cursor.execute('''INSERT OR REPLACE INTO individual_user_stats 
+                           (userId, isOnline, currentOnlineTime, lastSeenDate) 
+                           VALUES (?, ?, ?, ?)''',
+                           (user_id, is_online, current_time if is_online else None, last_seen))
 
         cursor.execute("INSERT OR REPLACE INTO user_stats VALUES (?, ?)",
                        (current_time, online_count))
