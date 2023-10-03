@@ -56,8 +56,11 @@ class UsersOnlineResource(Resource):
             if is_online and current_online_time == req_date:
                 return {"wasUserOnline": True, "nearestOnlineTime": None}, 200
 
-            else:
+            if not is_online and last_seen_date != "":
                 return {"wasUserOnline": False, "nearestOnlineTime": last_seen_date}, 200
+
+            else:
+                return {"wasUserOnline": False, "nearestOnlineTime": None}, 200
 
 
 api.add_resource(UsersOnlineResource, "/api/stats/users")
