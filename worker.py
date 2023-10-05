@@ -10,6 +10,7 @@ DB_NAME = 'online_users.db'
 def setup_db():
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
+
     cursor.execute('''CREATE TABLE IF NOT EXISTS user_stats 
                       (date text primary key, online_count integer)''')
 
@@ -18,8 +19,30 @@ def setup_db():
                            isOnline bool, 
                            currentOnlineTime text, 
                            lastSeenDate text)''')
+
+    cursor.execute('''CREATE TABLE IF NOT EXISTS individual_user_online_spans
+                        (userId text, 
+                        start_time text, 
+                        end_time text, 
+                        PRIMARY KEY(userId, start_time))''')
     conn.commit()
     conn.close()
+
+
+def not_was_online_before(user_id):
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+    cursor.execute("SELECT isOnline FROM individual_user_stats WHERE userId = ?", (user_id,))
+    result = cursor.fetchone()
+    return result is None or not result[0]
+
+
+def was_online_before(user_id):
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+    cursor.execute("SELECT isOnline FROM individual_user_stats WHERE userId = ?", (user_id,))
+    result = cursor.fetchone()
+    return result is not None and result[0]
 
 
 def worker():
@@ -39,6 +62,17 @@ def worker():
             is_online = user["isOnline"]
             current_time = time.strftime('%Y-%m-%dT%H:%M:%S')
             last_seen = user["lastSeenDate"]
+
+            if is_online and not_was_online_before(user_id):
+                # Insert new online span with start time
+                cursor.execute("INSERT INTO individual_user_online_spans (userId, start_time) VALUES (?, ?)",
+                               (user_id, current_time))
+
+            elif not is_online and was_online_before(user_id):
+                # Update the end time for the most recent online span
+                cursor.execute(
+                    "UPDATE individual_user_online_spans SET end_time = ? WHERE userId = ? AND end_time IS NULL",
+                    (current_time, user_id))
 
             cursor.execute('''INSERT OR REPLACE INTO individual_user_stats 
                            (userId, isOnline, currentOnlineTime, lastSeenDate) 

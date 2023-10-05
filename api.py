@@ -15,11 +15,6 @@ def str_to_datetime(date_str):
     return datetime.datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%S')
 
 
-# Calculate the difference in seconds between two datetimes
-def time_difference(date1, date2):
-    return abs((date1 - date2).total_seconds())
-
-
 class UsersOnlineResource(Resource):
     @staticmethod
     def get():
@@ -39,27 +34,36 @@ class UsersOnlineResource(Resource):
             users_online = result[0] if result else None
             return {"usersOnline": users_online}, 200
 
+        if len(user_id) != 36:
+            return {"error": "User not found."}, 404
+
         if req_date and user_id:
             conn = sqlite3.connect(DB_NAME)
             cursor = conn.cursor()
-            cursor.execute("SELECT isOnline, currentOnlineTime, lastSeenDate FROM individual_user_stats WHERE userId=?",
-                           (user_id,))
-            result = cursor.fetchone()
+            cursor.execute('''SELECT start_time, end_time FROM individual_user_online_spans 
+                                      WHERE userId = ? 
+                                      ORDER BY ABS(julianday(start_time) - julianday(?))''',
+                           (user_id, req_date))
+            nearest_time = cursor.fetchone()
             conn.close()
 
-            if not result:
-                return {"error": "User not found."}, 404
-
-            is_online, current_online_time, last_seen_date = result
-
-            if is_online and current_online_time == req_date:
-                return {"wasUserOnline": True, "nearestOnlineTime": None}, 200
-
-            if not is_online and last_seen_date != "":
-                return {"wasUserOnline": False, "nearestOnlineTime": last_seen_date}, 200
-
+            if nearest_time:
+                start_time, end_time = nearest_time
+                # Check which one is closer: start_time or end_time
+                nearest_online_time = min([time for time in [start_time, end_time] if time],
+                                          key=lambda d: abs(str_to_datetime(d) - str_to_datetime(req_date)))
+                if end_time is not None:
+                    if start_time <= req_date <= end_time:
+                        return {"wasUserOnline": True, "nearestOnlineTime": None}, 200
+                    if req_date > end_time:
+                        return {"wasUserOnline": False, "nearestOnlineTime": nearest_online_time}, 200
+                elif end_time is None and start_time <= req_date:
+                    return {"wasUserOnline": True, "nearestOnlineTime": None}, 200
+                else:
+                    return {"wasUserOnline": False, "nearestOnlineTime": None}, 200
             else:
-                return {"wasUserOnline": False, "nearestOnlineTime": None}, 200
+                nearest_online_time = None
+                return {"wasUserOnline": False, "nearestOnlineTime": nearest_online_time}, 200
 
 
 api.add_resource(UsersOnlineResource, "/api/stats/users")
@@ -73,8 +77,6 @@ class UserPredictionResource(Resource):
             return {"error": "Date parameter is required."}, 400
 
         req_datetime = datetime.datetime.strptime(req_date, '%Y-%m-%dT%H:%M:%S')
-        day_of_week = req_datetime.day
-        hour = req_datetime.hour
 
         # Query the database for historical data for the given day and hour
         conn = sqlite3.connect(DB_NAME)
