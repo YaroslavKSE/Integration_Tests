@@ -93,7 +93,7 @@ class UserPredictionResource(Resource):
 
         # Calculate the average
         if not online_counts:
-            return {"onlineUsers": 0}, 200
+            return {"onlineUsers": None}, 200
 
         avg_online_users = sum(online_counts) / len(online_counts)
 

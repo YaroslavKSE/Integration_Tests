@@ -104,6 +104,19 @@ class IntegrationTest(unittest.TestCase):
             "nearestOnlineTime": None
         })
 
+    def test_successful_api_response_for_predicting_online_user_count(self):
+        base_time_for_prediction = "2023-12-01T22:08:45"
+        mean_number_of_online_users = 59
+        response = self.app.get(f'/api/predictions/users?date={base_time_for_prediction}')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.get_json(), {"onlineUsers": mean_number_of_online_users})
+
+    def test_unsuccessful_api_response_for_predicting_online_user_count(self):
+        base_time_for_prediction = "2023-12-01T12:08:45"
+        response = self.app.get(f'/api/predictions/users?date={base_time_for_prediction}')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.get_json(), {"onlineUsers": None})
+
 
 if __name__ == '__main__':
     unittest.main()
