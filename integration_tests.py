@@ -117,6 +117,24 @@ class IntegrationTest(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.get_json(), {"onlineUsers": None})
 
+    def test_successful_api_response_for_predicting_the_chance_of_being_user_online(self):
+        response = self.app.get(f'/api/predictions/users?date={self.start_online_time}&tolerance={0.75}&'
+                                f'userId={self.user_id}')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.get_json(), {
+            "willBeOnline": True,
+            "onlineChance": 1.0
+        })
+
+    def test_unsuccessful_api_response_for_predicting_the_chance_of_being_user_online(self):
+        response = self.app.get(f'/api/predictions/users?date={self.current_time}&tolerance={0.75}&'
+                                f'userId={self.user_id}')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.get_json(), {
+            "willBeOnline": False,
+            "onlineChance": 0
+        })
+
 
 if __name__ == '__main__':
     unittest.main()
