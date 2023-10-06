@@ -1,52 +1,14 @@
 from models import get_all_users
-import sqlite3
+from setup_database import *
+from sql_online_check_models import *
 import time
 
 users_data = get_all_users()
 
-DB_NAME = 'online_users.db'
-
-
-def setup_db():
-    conn = sqlite3.connect(DB_NAME)
-    cursor = conn.cursor()
-
-    cursor.execute('''CREATE TABLE IF NOT EXISTS user_stats 
-                      (date text primary key, online_count integer)''')
-
-    cursor.execute('''CREATE TABLE IF NOT EXISTS individual_user_stats
-                          (userId text primary key, 
-                           isOnline bool, 
-                           currentOnlineTime text, 
-                           lastSeenDate text)''')
-
-    cursor.execute('''CREATE TABLE IF NOT EXISTS individual_user_online_spans
-                        (userId text, 
-                        start_time text, 
-                        end_time text, 
-                        PRIMARY KEY(userId, start_time))''')
-    conn.commit()
-    conn.close()
-
-
-def not_was_online_before(user_id):
-    conn = sqlite3.connect(DB_NAME)
-    cursor = conn.cursor()
-    cursor.execute("SELECT isOnline FROM individual_user_stats WHERE userId = ?", (user_id,))
-    result = cursor.fetchone()
-    return result is None or not result[0]
-
-
-def was_online_before(user_id):
-    conn = sqlite3.connect(DB_NAME)
-    cursor = conn.cursor()
-    cursor.execute("SELECT isOnline FROM individual_user_stats WHERE userId = ?", (user_id,))
-    result = cursor.fetchone()
-    return result is not None and result[0]
+setup_db()
 
 
 def worker():
-    setup_db()
     while True:
         current_time = time.strftime('%Y-%m-%dT%H:%M:%S')
         online_count = 0

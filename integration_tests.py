@@ -1,7 +1,9 @@
+from api import app
+from setup_database import setup_db
+from database_populator import populate_data
+
 import unittest
-import sqlite3
 import time
-from api import app, DB_NAME
 
 
 class IntegrationTest(unittest.TestCase):
@@ -14,21 +16,7 @@ class IntegrationTest(unittest.TestCase):
         self.populate_test_data()
 
     def populate_test_data(self):
-        conn = sqlite3.connect(DB_NAME)
-        cursor = conn.cursor()
-        cursor.execute('''CREATE TABLE IF NOT EXISTS user_stats 
-                      (date text primary key, online_count integer)''')
-
-        cursor.execute('''CREATE TABLE IF NOT EXISTS individual_user_stats
-                              (userId text primary key, 
-                               isOnline bool, 
-                               currentOnlineTime text, 
-                               lastSeenDate text)''')
-        cursor.execute('''CREATE TABLE IF NOT EXISTS individual_user_online_spans
-                            (userId text, 
-                            start_time text, 
-                            end_time text, 
-                            PRIMARY KEY(userId, start_time))''')
+        setup_db()
 
         current_time = time.strftime('%Y-%m-%dT%H:%M:%S')
         user_id = "e51c2535-test-test-test-aa7af408e927"
@@ -36,22 +24,9 @@ class IntegrationTest(unittest.TestCase):
         last_seen = "2023-10-02T08:28:29.0102812+00:00"
         start_online_time = "2023-10-05T17:01:17"
         end_online_time = "2023-10-05T17:05:32"
-        cursor.execute("INSERT OR REPLACE INTO user_stats VALUES (?, ?)",
-                       (current_time, 5))
 
-        cursor.execute('''INSERT OR REPLACE INTO individual_user_stats 
-                       (userId, isOnline, currentOnlineTime, lastSeenDate) 
-                       VALUES (?, ?, ?, ?)''',
-                       (user_id, is_online, current_time if is_online else None, last_seen))
+        populate_data(current_time, user_id, is_online, last_seen, start_online_time, end_online_time)
 
-        cursor.execute("INSERT OR REPLACE INTO individual_user_online_spans (userId, start_time) VALUES (?, ?)",
-                       (user_id, start_online_time))
-        cursor.execute(
-            "UPDATE individual_user_online_spans SET end_time = ? WHERE userId = ? AND end_time IS NULL",
-            (end_online_time, user_id))
-
-        conn.commit()
-        conn.close()
         self.current_time = current_time
         self.user_id = user_id
         self.is_online = is_online
