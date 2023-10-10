@@ -110,6 +110,21 @@ class IntegrationTest(unittest.TestCase):
             "onlineChance": 0
         })
 
+    def test_successful_api_response_for_calculating_total_seconds_user_was_online(self):
+        response = self.app.get(f'/api/stats/user/total?userId={self.user_id}')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.get_json(), {
+            "totalTime": 255
+        })
+
+    def test_api_for_calculating_total_seconds_user_was_online_if_system_has_no_info_about_user(self):
+        invalid_user_id = 'user_no_info_12312312'
+        response = self.app.get(f'/api/stats/user/total?userId={invalid_user_id}')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.get_json(), {
+            "totalTime": None
+        })
+
 
 if __name__ == '__main__':
     unittest.main()
