@@ -142,6 +142,28 @@ class IntegrationTest(unittest.TestCase):
             "weekAverage": None
         })
 
+    def test_api_response_user_data_was_forgotten(self):
+        response = self.app.get(f'/api/user/forget?userId={self.user_id}')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.get_json(), {
+            "userId": f"Data about {self.user_id} was forgotten"
+        })
+
+    def test_api_ForgetUserResource_user_not_found(self):
+        invalid_user_id = 'user_no_info_12312312'
+        response = self.app.get(f'/api/user/forget?userId={invalid_user_id}')
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.get_json(), {
+            "error": "user not found"
+        })
+
+    def test_api_ForgetUserResource_no_user_id_provided(self):
+        response = self.app.get(f'/api/user/forget?userId=')
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.get_json(), {
+            "error": "userId parameter is required"
+        })
+
 
 if __name__ == '__main__':
     unittest.main()
