@@ -125,6 +125,23 @@ class IntegrationTest(unittest.TestCase):
             "totalTime": None
         })
 
+    def test_api_successful_response_for_calculating_daily_and_weekly_average(self):
+        response = self.app.get(f'/api/stats/user/total?userId={self.user_id}&averageRequired=true')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.get_json(), {
+            "dayAverage": 255,
+            "weekAverage": 255
+        })
+
+    def test_api_response_for_calculating_daily_and_weekly_average_if_the_user_not_found(self):
+        user_not_fount = 'user_no_info_12312312'
+        response = self.app.get(f'/api/stats/user/total?userId={user_not_fount}&averageRequired=true')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.get_json(), {
+            "dayAverage": None,
+            "weekAverage": None
+        })
+
 
 if __name__ == '__main__':
     unittest.main()
