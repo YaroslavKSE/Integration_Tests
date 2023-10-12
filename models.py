@@ -34,5 +34,5 @@ def get_all_users():
         for user in get_users_data(params):
             all_user_data.append(user)
         params['offset'] += offset_increase
-
+    params['offset'] = 0
     return all_user_data

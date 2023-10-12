@@ -3,13 +3,13 @@ from setup_database import *
 from sql_online_check_models import *
 import time
 
-users_data = get_all_users()
-
 setup_db()
 
 
 def worker():
     while True:
+        users_data = get_all_users()
+
         current_time = time.strftime('%Y-%m-%dT%H:%M:%S')
         online_count = 0
 
