@@ -110,6 +110,60 @@ class IntegrationTest(unittest.TestCase):
             "onlineChance": 0
         })
 
+    def test_successful_api_response_for_calculating_total_seconds_user_was_online(self):
+        response = self.app.get(f'/api/stats/user/total?userId={self.user_id}')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.get_json(), {
+            "totalTime": 255
+        })
+
+    def test_api_for_calculating_total_seconds_user_was_online_if_system_has_no_info_about_user(self):
+        invalid_user_id = 'user_no_info_12312312'
+        response = self.app.get(f'/api/stats/user/total?userId={invalid_user_id}')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.get_json(), {
+            "totalTime": None
+        })
+
+    def test_api_successful_response_for_calculating_daily_and_weekly_average(self):
+        response = self.app.get(f'/api/stats/user/total?userId={self.user_id}&averageRequired=true')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.get_json(), {
+            "dayAverage": 255,
+            "weekAverage": 255
+        })
+
+    def test_api_response_for_calculating_daily_and_weekly_average_if_the_user_not_found(self):
+        user_not_fount = 'user_no_info_12312312'
+        response = self.app.get(f'/api/stats/user/total?userId={user_not_fount}&averageRequired=true')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.get_json(), {
+            "dayAverage": None,
+            "weekAverage": None
+        })
+
+    def test_api_response_user_data_was_forgotten(self):
+        response = self.app.get(f'/api/user/forget?userId={self.user_id}')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.get_json(), {
+            "userId": f"Data about {self.user_id} was forgotten"
+        })
+
+    def test_api_ForgetUserResource_user_not_found(self):
+        invalid_user_id = 'user_no_info_12312312'
+        response = self.app.get(f'/api/user/forget?userId={invalid_user_id}')
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.get_json(), {
+            "error": "user not found"
+        })
+
+    def test_api_ForgetUserResource_no_user_id_provided(self):
+        response = self.app.get(f'/api/user/forget?userId=')
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.get_json(), {
+            "error": "userId parameter is required"
+        })
+
 
 if __name__ == '__main__':
     unittest.main()
