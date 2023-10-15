@@ -1,6 +1,9 @@
 import sqlite3
+import os
 
-DB_NAME = 'online_users.db'
+BASE_DIR = "D:\pythonProjects\IntegrationTests"
+
+DB_NAME = os.path.join(BASE_DIR, 'online_users.db')
 
 
 def setup_db():
@@ -21,5 +24,8 @@ def setup_db():
                         start_time text, 
                         end_time text, 
                         PRIMARY KEY(userId, start_time))''')
+
+    cursor.execute("""CREATE TABLE IF NOT EXISTS forgotten_users (userId TEXT PRIMARY KEY)""")
+
     conn.commit()
     conn.close()

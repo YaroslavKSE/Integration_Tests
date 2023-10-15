@@ -59,10 +59,10 @@ class TestSetupDbFunction(unittest.TestCase):
         setup_db()
 
         # Assert that the connection was made to the correct database.
-        mock_connect.assert_called_once_with('online_users.db')
+        mock_connect.assert_called_once_with('D:\\pythonProjects\\IntegrationTests\\online_users.db')
 
         # Assert that the necessary SQL commands were executed.
-        assert mock_cursor.execute.call_count == 3  # We know it should be called thrice for three tables.
+        assert mock_cursor.execute.call_count == 4  # We know it should be called thrice for three tables.
 
         # Assert that the commit method was called
         mock_connection.commit.assert_called_once()
@@ -101,18 +101,24 @@ class TestWorkerFunction(unittest.TestCase):
             worker()
 
         # Assert that the connection was made to the correct database.
-        self.assertEqual(mock_connect.call_count, 2)
+        self.assertEqual(mock_connect.call_count, 1)
 
         mock_sleep.assert_called_once_with(20)
 
+        mock_cursor.execute.assert_any_call('SELECT userId FROM forgotten_users WHERE userId = ?',
+                                            ('e31e41f4-test-cd5d-def4-4c79f86bb0e1',))
         mock_cursor.execute.assert_any_call('INSERT OR REPLACE INTO user_stats VALUES (?, ?)',
-                                            ('2023-10-12T16:03:12', 1))
+                                            ('2023-10-12T16:03:12', 0))
 
         # Assert that the necessary SQL commands were executed.
-        assert mock_cursor.execute.call_count == 3
+        assert mock_cursor.execute.call_count == 2
 
         # Assert that the commit method was called
         mock_connection.commit.assert_called_once()
 
         # Assert that the close method was called
         mock_connection.close.assert_called_once()
+
+
+if __name__ == '__main__':
+    unittest.main()

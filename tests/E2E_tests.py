@@ -6,7 +6,7 @@ import unittest
 
 import requests
 
-from database_populator import *
+from sql_db_models.database_populator import *
 
 API_BASE_URL = 'http://127.0.0.1:5000/api'  # Replace with your API's base URL
 

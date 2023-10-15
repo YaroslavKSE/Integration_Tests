@@ -1,6 +1,6 @@
 import sqlite3
 
-from setup_database import DB_NAME
+from sql_db_models.setup_database import DB_NAME
 
 
 def populate_data(current_time, user_id, is_online, last_seen, start_online_time, end_online_time):

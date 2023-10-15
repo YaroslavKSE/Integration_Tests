@@ -1,10 +1,10 @@
 from flask import Flask
 from flask_restful import Api
 
-from UsersOnlineResource import UsersOnlineResource
-from UserPredictionResource import UserPredictionResource
-from UsersTotalResource import UsersTotalResource
-from ForgetUserResource import ForgetUserResource
+from api_resources.UsersOnlineResource import UsersOnlineResource
+from api_resources.UserPredictionResource import UserPredictionResource
+from api_resources.UsersTotalResource import UsersTotalResource
+from api_resources.ForgetUserResource import ForgetUserResource
 
 app = Flask(__name__)
 api = Api(app)

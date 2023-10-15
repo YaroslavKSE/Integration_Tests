@@ -1,6 +1,6 @@
 from api import app
-from setup_database import setup_db
-from database_populator import populate_data
+from sql_db_models.setup_database import setup_db
+from sql_db_models.database_populator import populate_data
 
 import unittest
 import time

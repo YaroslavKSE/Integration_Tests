@@ -1,6 +1,6 @@
 from flask import request
 from flask_restful import Resource
-from setup_database import DB_NAME
+from sql_db_models.setup_database import DB_NAME
 
 import sqlite3
 
@@ -26,6 +26,8 @@ class ForgetUserResource(Resource):
         # Delete the user's data from individual_user_online_spans
         cursor.execute("DELETE FROM individual_user_online_spans WHERE userId = ?", (user_id,))
 
+        cursor.execute("INSERT OR IGNORE INTO forgotten_users (userId) VALUES (?)", (user_id,))
+        
         # Commit the changes
         conn.commit()
         conn.close()

@@ -1,6 +1,6 @@
 from models import get_all_users
-from setup_database import *
-from sql_online_check_models import *
+from sql_db_models.setup_database import *
+from sql_db_models.sql_online_check_models import *
 import time
 
 setup_db()
@@ -17,10 +17,13 @@ def worker():
         cursor = conn.cursor()
 
         for user in users_data:
+            user_id = user["userId"]
+            cursor.execute("SELECT userId FROM forgotten_users WHERE userId = ?", (user_id,))
+            if cursor.fetchone():
+                continue
             if user["isOnline"]:
                 online_count += 1
 
-            user_id = user["userId"]
             is_online = user["isOnline"]
             current_time = time.strftime('%Y-%m-%dT%H:%M:%S')
             last_seen = user["lastSeenDate"]

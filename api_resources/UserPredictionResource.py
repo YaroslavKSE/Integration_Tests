@@ -1,6 +1,6 @@
 from flask import request
 from flask_restful import Resource
-from setup_database import DB_NAME
+from sql_db_models.setup_database import DB_NAME
 
 import datetime
 import sqlite3

@@ -1,5 +1,5 @@
 import sqlite3
-from setup_database import DB_NAME
+from sql_db_models.setup_database import DB_NAME
 
 
 def not_was_online_before(user_id):
