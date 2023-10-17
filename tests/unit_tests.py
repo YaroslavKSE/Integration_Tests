@@ -2,6 +2,7 @@ import unittest
 import json
 from unittest.mock import patch, MagicMock, Mock
 from worker import setup_db, worker
+from sql_db_models.setup_database import DB_NAME
 from models import get_users_data
 
 
@@ -59,7 +60,7 @@ class TestSetupDbFunction(unittest.TestCase):
         setup_db()
 
         # Assert that the connection was made to the correct database.
-        mock_connect.assert_called_once_with('D:\\pythonProjects\\IntegrationTests\\online_users.db')
+        mock_connect.assert_called_once_with(DB_NAME)
 
         # Assert that the necessary SQL commands were executed.
         assert mock_cursor.execute.call_count == 4  # We know it should be called thrice for three tables.
@@ -122,3 +123,4 @@ class TestWorkerFunction(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+

@@ -1,9 +1,8 @@
 import sqlite3
 import os
 
-BASE_DIR = "D:\pythonProjects\IntegrationTests"
-
-DB_NAME = os.path.join(BASE_DIR, 'online_users.db')
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DB_NAME = os.path.join(BASE_DIR, '..', 'online_users.db')
 
 
 def setup_db():
