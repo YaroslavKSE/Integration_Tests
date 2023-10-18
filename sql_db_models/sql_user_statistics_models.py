@@ -73,7 +73,7 @@ def get_user_online_times(user):
     query = """
     SELECT strftime('%Y-%m-%d', start_time), sum(strftime('%s', end_time) - strftime('%s', start_time))
     FROM individual_user_online_spans
-    WHERE user_id = ?
+    WHERE userId = ?
     GROUP BY strftime('%Y-%m-%d', start_time);
     """
 
@@ -95,6 +95,6 @@ def user_exists_in_db(user):
     # Check if user exists in the individual_user_stats
     cursor.execute("SELECT * FROM individual_user_stats WHERE userId = ?", (user,))
     if not cursor.fetchone():
-        return {"error": "user not found"}, 404
+        return False
     else:
         return True

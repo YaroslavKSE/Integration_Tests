@@ -22,7 +22,7 @@ class UsersReportResource(Resource):
 
     def post(self, report_name):
         # Parse the request body
-        body = request.get_json()
+        body = request.get_json(force=True)
         metrics = body.get('metrics', [])
         users = body.get('users', [])
 
@@ -40,9 +40,9 @@ class UsersReportResource(Resource):
             if user_exists_in_db(user):
                 user_metrics = {}
                 for metric in metrics:
-                    if metric == "daily_average":
+                    if metric == "dailyAverage":
                         user_metrics["dailyAverage"] = calculate_daily_average(user)
-                    elif metric == "weekly_average":
+                    elif metric == "weeklyAverage":
                         user_metrics["weeklyAverage"] = calculate_weekly_average(user)
                     elif metric == "total":
                         user_metrics["total"] = calculate_total_online_seconds(user)
@@ -54,9 +54,6 @@ class UsersReportResource(Resource):
                 report_data[user] = user_metrics
             else:
                 report_data[user] = "Error: user not found"
-
-        # For now, let's just print the report data.
-        print(report_data)
 
         return report_data
 
