@@ -21,4 +21,4 @@ api.add_resource(ForgetUserResource, "/api/user/forget")
 api.add_resource(UsersReportResource, "/api/report/<string:report_name>")
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0')
