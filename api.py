@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_restful import Api
 
+from api_resources.HomePageResource import HomePageResource
 from api_resources.UsersOnlineResource import UsersOnlineResource
 from api_resources.UserPredictionResource import UserPredictionResource
 from api_resources.UsersReportResource import UsersReportResource
@@ -9,6 +10,9 @@ from api_resources.ForgetUserResource import ForgetUserResource
 
 app = Flask(__name__)
 api = Api(app)
+
+
+api.add_resource(HomePageResource, "/")
 
 api.add_resource(UsersOnlineResource, "/api/stats/users")
 
