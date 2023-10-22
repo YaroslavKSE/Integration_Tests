@@ -13,7 +13,7 @@ permissions:
   contents: read
 
 jobs:
-  python-integration-tests:
+  python-tests:
 
     runs-on: ubuntu-latest
 
@@ -36,5 +36,6 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with pytest
       run: |
-        python -m unittest tests.integration_tests
         python -m unittest tests.unit_tests
+        python -m unittest tests.integration_tests
+        python -m unittest tests.E2E_tests

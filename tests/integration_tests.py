@@ -1,4 +1,5 @@
 from api import app
+from api_resources.UsersReportResource import UsersReportResource
 from sql_db_models.setup_database import setup_db
 from sql_db_models.database_populator import populate_data
 
@@ -163,6 +164,48 @@ class IntegrationTest(unittest.TestCase):
         self.assertEqual(response.get_json(), {
             "error": "userId parameter is required"
         })
+
+    def test_post_report_response_status_code_200_if_the_metrics_and_users_are_provided(self):
+        # Given
+        report_name = "test_report"
+        payload = {
+            "metrics": ["dailyAverage", "weeklyAverage", "total"],
+            "users": [
+                "9dcfd7a8-1a8a-e410-df25-0111bf54ba96",
+                "39a28b40-dde6-84ec-c96e-dacc075effcb",
+                "61b26e2c-a0d1-4461-aa80-13241ec292e1"
+            ]
+        }
+
+        # When
+        response = self.app.post(f'/api/report/{report_name}', json=payload)
+
+        # Then
+        self.assertEqual(response.status_code, 200)
+
+        # Check if the report has been generated and stored.
+        self.assertTrue(report_name in UsersReportResource.reports)
+
+    def test_get_report_response_status_200_len_report_dict_is_equal_to_user_count(self):
+        # Given
+        report_name = "test_report"
+
+        # We assume the report "test_report" is already generated.
+        # For this test's purpose, let's manually add it.
+        UsersReportResource.reports[report_name] = {
+            "9dcfd7a8-1a8a-e410-df25-0111bf54ba96": {"dailyAverage": 1000, "total": 5000, "weeklyAverage": 3000},
+            "39a28b40-dde6-84ec-c96e-dacc075effcb": {"dailyAverage": 1500, "total": 4500, "weeklyAverage": 3200},
+            "61b26e2c-a0d1-4461-aa80-13241ec292e1": {"Error": "user not found"}
+        }
+
+        # When
+        response = self.app.get(f'/api/report/{report_name}')
+
+        # Then
+        self.assertEqual(response.status_code, 200)
+
+        data = response.get_json()
+        self.assertEqual(len(data), 3)
 
 
 if __name__ == '__main__':

@@ -22,7 +22,7 @@ class UsersReportResource(Resource):
 
     def post(self, report_name):
         # Parse the request body
-        body = request.get_json()
+        body = request.get_json(force=True)
         metrics = body.get('metrics', [])
         users = body.get('users', [])
 
@@ -37,23 +37,23 @@ class UsersReportResource(Resource):
         report_data = {}
 
         for user in users:
-            user_metrics = {}
-            for metric in metrics:
-                if metric == "daily_average":
-                    user_metrics["dailyAverage"] = calculate_daily_average(user)
-                elif metric == "weekly_average":
-                    user_metrics["weeklyAverage"] = calculate_weekly_average(user)
-                elif metric == "total":
-                    user_metrics["total"] = calculate_total_online_seconds(user)
-                elif metric == "min":
-                    user_metrics["min"] = calculate_daily_min_seconds(user)
-                elif metric == "max":
-                    user_metrics["max"] = calculate_daily_max_seconds(user)
+            if user_exists_in_db(user):
+                user_metrics = {}
+                for metric in metrics:
+                    if metric == "dailyAverage":
+                        user_metrics["dailyAverage"] = calculate_daily_average(user)
+                    elif metric == "weeklyAverage":
+                        user_metrics["weeklyAverage"] = calculate_weekly_average(user)
+                    elif metric == "total":
+                        user_metrics["total"] = calculate_total_online_seconds(user)
+                    elif metric == "min":
+                        user_metrics["min"] = calculate_daily_min_seconds(user)
+                    elif metric == "max":
+                        user_metrics["max"] = calculate_daily_max_seconds(user)
 
-            report_data[user] = user_metrics
-
-        # For now, let's just print the report data.
-        print(report_data)
+                report_data[user] = user_metrics
+            else:
+                report_data[user] = "Error: user not found"
 
         return report_data
 
