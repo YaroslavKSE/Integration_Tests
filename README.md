@@ -1,4 +1,3 @@
-Certainly! Here's your text beautified using Git markdown:
 
 ---
 
@@ -48,5 +47,3 @@ Visit [https://appforusers.top/](https://appforusers.top/) to use the API.
 > Note: The name of the report should be specified by the user in the post request.
 
 --- 
-
-This structure should be easier to read and more visually appealing when rendered in markdown format.
