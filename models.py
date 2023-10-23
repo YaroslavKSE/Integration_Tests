@@ -13,7 +13,6 @@ def get_users_data(offset):
     # Sending GET request and saving the response as a response object
     response = requests.get(url, params=offset, headers={'accept': 'application/json'})
     if response.status_code != 200:
-        print(f"Failed to retrieve data. Status code: {response.status_code}")
         return []
 
     # Parse JSON response
