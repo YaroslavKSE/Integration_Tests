@@ -81,7 +81,7 @@ def get_user_online_times(user):
     results = cursor.fetchall()
 
     # Organizing the results into a dictionary where key is the date and value is the total online time for that date
-    online_times = {record[0]: record[1] for record in results}
+    online_times = {record[0]: record[1] for record in results if None not in record}
 
     connection.close()
 
