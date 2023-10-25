@@ -1,21 +1,20 @@
-from flask import Flask, request, jsonify
-from flask_restful import Api, Resource
+from flask import request, jsonify
+from flask_restful import Resource
 from sql_db_models.sql_user_statistics_models import *
 
-app = Flask(__name__)
-api = Api(app)
+reports = {}
+report_configs = {}
 
 
 class UsersReportResource(Resource):
-    reports = {}  # A class variable to store reports for simplicity.
-
-    def get(self, report_name):
+    @staticmethod
+    def get(report_name):
         date_from = request.args.get('from')
         date_to = request.args.get('to')
 
         # To do: Filter the data based on date_from and date_to if necessary.
 
-        report_data = self.reports.get(report_name, {})
+        report_data = reports.get(report_name, {})
         # List to store users and their metrics
         users_list = []
 
@@ -42,7 +41,7 @@ class UsersReportResource(Resource):
 
             # Calculate average metrics for all users
         average_daily_average = total_daily_average / num_users if num_users else 0
-        average_weekly_average = total_daily_average / num_users if num_users else 0
+        average_weekly_average = total_weekly_average / num_users if num_users else 0
 
         response_data = {
             "Users": users_list,
@@ -58,9 +57,16 @@ class UsersReportResource(Resource):
         metrics = body.get('metrics', [])
         users = body.get('users', [])
 
+        # Save the configuration
+        report_configs[report_name] = {
+            "Name": report_name,
+            "metrics": metrics,
+            "users": users
+        }
+
         # Generate the report (this is where we'll calculate all the required metrics)
         report_data = self.generate_report(metrics, users)
-        self.reports[report_name] = report_data
+        reports[report_name] = report_data
 
         return jsonify({})
 
@@ -88,7 +94,3 @@ class UsersReportResource(Resource):
                 report_data[user] = "Error: user not found"
 
         return report_data
-
-
-if __name__ == '__main__':
-    app.run(debug=True)
