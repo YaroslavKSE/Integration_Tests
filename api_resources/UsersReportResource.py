@@ -2,19 +2,19 @@ from flask import request, jsonify
 from flask_restful import Resource
 from sql_db_models.sql_user_statistics_models import *
 
-reports = {}
 report_configs = {}
 
 
 class UsersReportResource(Resource):
-    @staticmethod
-    def get(report_name):
+    reports = {}
+
+    def get(self, report_name):
         date_from = request.args.get('from')
         date_to = request.args.get('to')
 
         # To do: Filter the data based on date_from and date_to if necessary.
 
-        report_data = reports.get(report_name, {})
+        report_data = self.reports.get(report_name, {})
         # List to store users and their metrics
         users_list = []
 
@@ -66,7 +66,7 @@ class UsersReportResource(Resource):
 
         # Generate the report (this is where we'll calculate all the required metrics)
         report_data = self.generate_report(metrics, users)
-        reports[report_name] = report_data
+        self.reports[report_name] = report_data
 
         return jsonify({})
 
