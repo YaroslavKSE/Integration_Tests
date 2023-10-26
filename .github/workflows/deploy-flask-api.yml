@@ -15,8 +15,6 @@ jobs:
           username: ${{secrets.SSH_USERNAME}}
 
           script: |
-            cd Tests
-            git clone https://github.com/YaroslavKSE/Tests.git
-            flask --app api run --host=0.0.0.0 --port=80
-            echo "Deployment to Digital ocean was successfull"
-
+            whoami
+            ls -al
+            echo "Deployment to digitalocean was successfull"
