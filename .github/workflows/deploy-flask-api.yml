@@ -6,16 +6,16 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      -name: Deploy Flask app
-      uses: appleboy/ssh-action@v0.1.2
-      with:
-        host : ${{secrets.SSH_HOST}}
-        key: ${{secrets.SSH_KEY}}
-        username: ${{secrets.SSH_USERNAME}}
+      - name: Deploy Flask app
+        uses: appleboy/ssh-action@v0.1.2
+        with:
+          host : ${{secrets.SSH_HOST}}
+          key: ${{secrets.SSH_KEY}}
+          username: ${{secrets.SSH_USERNAME}}
 
-        script:
-          cd Tests
-          git clone https://github.com/YaroslavKSE/Tests.git
-          flask --app api run --host=0.0.0.0 --port=80
-          echo "Deployment to Digital ocean was successfull"
+          script:
+            cd Tests
+            git clone https://github.com/YaroslavKSE/Tests.git
+            flask --app api run --host=0.0.0.0 --port=80
+            echo "Deployment to Digital ocean was successfull"
 
