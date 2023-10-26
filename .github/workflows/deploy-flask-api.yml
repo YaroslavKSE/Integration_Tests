@@ -17,5 +17,5 @@ jobs:
           script: |
             whoami
             cd Tests
-            git clone https://github.com/YaroslavKSE/Tests.git
+            git pull https://github.com/YaroslavKSE/Tests.git
             echo "Deployment to digitalocean was successfull"
