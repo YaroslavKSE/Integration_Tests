@@ -44,13 +44,13 @@ class UserPredictionResource(Resource):
             cursor = conn.cursor()
             req_datetime = datetime.datetime.strptime(req_date, '%Y-%m-%dT%H:%M:%S')
             # This gives a string representation of the day of the week (0 for Sunday, 1 for Monday, etc.)
-            day_of_week = req_datetime.strftime('%w')
+            day_of_week = req_datetime.strftime('%d')
             hour_minute = req_datetime.strftime('%H:%M')
 
             # Fetch number of times user was online at the same weekday and time
             cursor.execute('''SELECT COUNT(*) FROM individual_user_online_spans 
                               WHERE userId = ? AND 
-                                    strftime('%w', start_time) = ? AND 
+                                    strftime('%d', start_time) = ? AND 
                                     strftime('%H:%M', start_time) = ?''',
                            (user_id, day_of_week, hour_minute))
 

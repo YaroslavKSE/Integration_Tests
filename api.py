@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_restful import Api
 
+from api_resources.GetAllReportsResource import GetAllReportsResource
 from api_resources.HomePageResource import HomePageResource
 from api_resources.UsersOnlineResource import UsersOnlineResource
 from api_resources.UserPredictionResource import UserPredictionResource
@@ -23,6 +24,9 @@ api.add_resource(UsersTotalResource, "/api/stats/user/total")
 api.add_resource(ForgetUserResource, "/api/user/forget")
 
 api.add_resource(UsersReportResource, "/api/report/<string:report_name>")
+
+api.add_resource(GetAllReportsResource, "/api/reports")
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=80)

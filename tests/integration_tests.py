@@ -16,6 +16,10 @@ class IntegrationTest(unittest.TestCase):
         # Pre-populate the database with known data
         self.populate_test_data()
 
+    def tearDown(self):
+        UsersReportResource.reports = {}
+        UsersReportResource.report_configs = {}
+
     def populate_test_data(self):
         setup_db()
 
@@ -206,6 +210,31 @@ class IntegrationTest(unittest.TestCase):
 
         data = response.get_json()
         self.assertEqual(len(data), 3)
+
+    def test_get_all_reports_response_status_200(self):
+        post_data = {
+            "Name": "test_report",
+            "metrics": ["dailyAverage", "weeklyAverage", "total"],
+            "users": ["9dcfd7a8-1a8a-e410-df25-0111bf54ba96",
+                      "39a28b40-dde6-84ec-c96e-dacc075effcb",
+                      "61b26e2c-a0d1-4461-aa80-13241ec292e1"]
+
+        }
+        # post data
+        response = self.app.post('/api/report/test_report', json=post_data)
+        self.assertEqual(response.status_code, 200)
+        # get data
+        response = self.app.get('/api/reports')
+        self.assertEqual(response.status_code, 200)
+        data = response.get_json()
+        # Check data
+        self.assertEqual(len(data), 1)
+
+        self.assertEqual(data[0]['Name'], 'test_report')
+        self.assertEqual(data[0]['metrics'], ["dailyAverage", "weeklyAverage", "total"])
+        self.assertEqual(data[0]['users'], ["9dcfd7a8-1a8a-e410-df25-0111bf54ba96",
+                                            "39a28b40-dde6-84ec-c96e-dacc075effcb",
+                                            "61b26e2c-a0d1-4461-aa80-13241ec292e1"])
 
 
 if __name__ == '__main__':

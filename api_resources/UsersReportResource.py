@@ -1,13 +1,12 @@
-from flask import Flask, request, jsonify
-from flask_restful import Api, Resource
+from flask import request, jsonify
+from flask_restful import Resource
 from sql_db_models.sql_user_statistics_models import *
 
-app = Flask(__name__)
-api = Api(app)
+report_configs = {}
 
 
 class UsersReportResource(Resource):
-    reports = {}  # A class variable to store reports for simplicity.
+    reports = {}
 
     def get(self, report_name):
         date_from = request.args.get('from')
@@ -16,7 +15,39 @@ class UsersReportResource(Resource):
         # To do: Filter the data based on date_from and date_to if necessary.
 
         report_data = self.reports.get(report_name, {})
-        response_data = [{'userId': user, 'metrics': metrics} for user, metrics in report_data.items()]
+        # List to store users and their metrics
+        users_list = []
+
+        # Variables to calculate global metrics
+        total_daily_average = 0
+        total_weekly_average = 0
+        num_users = 0
+        for user, metrics in report_data.items():
+            if isinstance(metrics, str):  # For "Error: user not found" cases
+                user_entry = {
+                    "userId": user,
+                    "metrics": metrics
+                }
+            else:
+                user_entry = {
+                    "userId": user,
+                    "metrics": [dict([item]) for item in metrics.items()]
+                }
+                total_daily_average += metrics.get('dailyAverage', 0)
+                total_weekly_average += metrics.get('weeklyAverage', 0)
+                num_users += 1
+
+            users_list.append(user_entry)
+
+            # Calculate average metrics for all users
+        average_daily_average = total_daily_average / num_users if num_users else 0
+        average_weekly_average = total_weekly_average / num_users if num_users else 0
+
+        response_data = {
+            "Users": users_list,
+            "dailyAverage": average_daily_average,
+            "weeklyAverage": average_weekly_average,
+        }
 
         return jsonify(response_data)
 
@@ -25,6 +56,13 @@ class UsersReportResource(Resource):
         body = request.get_json(force=True)
         metrics = body.get('metrics', [])
         users = body.get('users', [])
+
+        # Save the configuration
+        report_configs[report_name] = {
+            "Name": report_name,
+            "metrics": metrics,
+            "users": users
+        }
 
         # Generate the report (this is where we'll calculate all the required metrics)
         report_data = self.generate_report(metrics, users)
@@ -56,7 +94,3 @@ class UsersReportResource(Resource):
                 report_data[user] = "Error: user not found"
 
         return report_data
-
-
-if __name__ == '__main__':
-    app.run(debug=True)
