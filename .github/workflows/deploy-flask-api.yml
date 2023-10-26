@@ -16,5 +16,6 @@ jobs:
 
           script: |
             whoami
-            ls -al
+            cd Tests
+            git clone https://github.com/YaroslavKSE/Tests.git
             echo "Deployment to digitalocean was successfull"
