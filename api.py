@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_restful import Api
 
+from api_resources.GetVersionResource import GetVersionResource
 from api_resources.GetAllReportsResource import GetAllReportsResource
 from api_resources.HomePageResource import HomePageResource
 from api_resources.UsersOnlineResource import UsersOnlineResource
@@ -27,6 +28,7 @@ api.add_resource(UsersReportResource, "/api/report/<string:report_name>")
 
 api.add_resource(GetAllReportsResource, "/api/reports")
 
+api.add_resource(GetVersionResource, "/api/version")
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0')
