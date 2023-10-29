@@ -1,7 +1,7 @@
 
 ---
 
-# Tests
+# API and Tests
 
 Implementing the API using the Flask module and tests using the `unittest` module in Python.
 
