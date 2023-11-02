@@ -88,6 +88,34 @@ def get_user_online_times(user):
     return online_times
 
 
+def get_users_list():
+    connection = sqlite3.connect(DB_NAME)
+    cursor = connection.cursor()
+    sql_query = """
+    SELECT userId, MIN(start_time) as first_seen
+    FROM individual_user_online_spans
+    GROUP BY userId;
+    """
+    cursor.execute(sql_query)
+
+    # Fetch all results
+    results = cursor.fetchall()
+
+    # Close the cursor and connection
+    cursor.close()
+    connection.close()
+
+    users_list = [
+        {
+            "userId": row[0],
+            "firstSeen": row[1]
+        }
+        for row in results
+    ]
+
+    return users_list
+
+
 def user_exists_in_db(user):
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
@@ -98,3 +126,4 @@ def user_exists_in_db(user):
         return False
     else:
         return True
+
