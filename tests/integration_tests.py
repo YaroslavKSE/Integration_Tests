@@ -236,6 +236,26 @@ class IntegrationTest(unittest.TestCase):
                                             "39a28b40-dde6-84ec-c96e-dacc075effcb",
                                             "61b26e2c-a0d1-4461-aa80-13241ec292e1"])
 
+    def test_UsersListResource_status_code_200_and_list_is_formatted(self):
+        # Send a GET request to the server and receive the response
+        response = self.app.get(f'/api/users/list')
+
+        # Assert that the status code is 200
+        self.assertEqual(response.status_code, 200)
+
+        # Assert that the response content type is application/json
+        self.assertEqual(response.content_type, 'application/json')
+
+        # Load the response data
+        response_data = response.get_json()
+
+        # Assert the structure of the response
+        self.assertIsInstance(response_data, list)
+        for user in response_data:
+            self.assertIn('userId', user)
+            self.assertIn('nickname', user)
+            self.assertIn('firstSeen', user)
+
 
 if __name__ == '__main__':
     unittest.main()
